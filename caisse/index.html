@@ -13,12 +13,31 @@
   button { width:100%; padding:14px; font-size:18px; font-weight:bold; border:none; border-radius:10px; color:white; margin:5px 0; cursor:pointer; }
   .vert{background:#27ae60;} .rouge{background:#e74c3c;} .bleu{background:#2980b9;} .orange{background:#f39c12;}
   #liste { white-space:pre-line; font-family:Consolas; }
-  #total { color:#f1c40f; font-size:24px; font-weight:bold; text-align:center; }
+  #total { color:#f1c40f; font-size:20px; font-weight:bold; text-align:center; white-space:pre-line; }
   #rendu { font-size:22px; font-weight:bold; text-align:center; }
   #prix { color:#2ecc71; font-size:20px; font-weight:bold; text-align:center; }
+  #notif { background:#e67e22; color:white; padding:10px; border-radius:8px; text-align:center; font-weight:bold; display:none; margin:10px 0; }
+  #accueilApp { text-align:center; padding:30px 10px; }
+  .cache { display:none; }
 </style>
 </head>
 <body>
+
+<div id="notif">🔔 Nouvelle version disponible ! Fermez et rouvrez l'application pour profiter des nouveautés.</div>
+
+<div id="accueilApp">
+  <h1>🛒 BIENVENUE DANS NOTRE APPLICATION</h1>
+  <div class="card">
+    <p style="font-size:20px;color:#f1c40f;font-weight:bold;">✨ Tsiky Caisse ✨</p>
+    <p>📦 Gérez simplement votre magasin : produits, panier et rendu de monnaie en Ariary.</p>
+    <p>👨‍💻 Développée par : <b>Tsiky</b></p>
+    <p>📧 Contact : <b>tsiky@email.com</b></p>
+    <p style="color:#2ecc71;font-weight:bold;">🔔 v2.0 : TVA ajoutée !</p>
+  </div>
+  <button class="vert" style="font-size:22px;" onclick="ouvrirCaisse()">🛒 ENTRER DANS LA CAISSE</button>
+</div>
+
+<div id="caisse" class="cache">
 <h1>🛒 CAISSE MAGASIN</h1>
 
 <div class="card">
@@ -47,6 +66,7 @@
   <input id="newPrix" type="number" placeholder="Prix (Ar)">
   <button class="orange" onclick="ajouterProduit()">✅ Ajouter le produit</button>
 </div>
+</div>
 
 <script>
 let produits = JSON.parse(localStorage.getItem('produits')) || {
@@ -54,7 +74,19 @@ let produits = JSON.parse(localStorage.getItem('produits')) || {
   "Croissant":800,"Cafe":2500,"Chocolat":3500,"Yaourt":700
 };
 let panier = [];
-const fmt = m => m.toLocaleString('fr-FR').replace(/ /g,' ') + ' Ar';
+const fmt = m => m.toLocaleString('fr-FR').replace(/ /g,' ') + ' Ar';
+const ht = () => panier.reduce((a,[_,p,q])=>a+p*q,0);
+const tva = () => Math.round(ht() * 0.20);
+const ttc = () => ht() + tva();
+function ouvrirCaisse() {
+  document.getElementById('accueilApp').style.display='none';
+  document.getElementById('caisse').classList.remove('cache');
+}
+// Notification de mise a jour
+if (localStorage.getItem('version_app') !== '2.0') {
+  document.getElementById('notif').style.display='block';
+  localStorage.setItem('version_app', '2.0');
+}
 
 function rafraichirListe() {
   let s = document.getElementById('produit');
@@ -75,11 +107,12 @@ function vider() { panier = []; rafraichirPanier(); document.getElementById('ren
 function rafraichirPanier() {
   let lignes = panier.map(([n,p,q]) => `${n}  ${q} x ${fmt(p)} = ${fmt(p*q)}`);
   document.getElementById('liste').textContent = lignes.join('\n') || 'Panier vide';
-  document.getElementById('total').textContent = 'TOTAL : ' + fmt(panier.reduce((a,[_,p,q])=>a+p*q,0));
+  document.getElementById('total').textContent =
+    'Sous-total : ' + fmt(ht()) + '\nTVA 20% : ' + fmt(tva()) + '\nTOTAL TTC : ' + fmt(ttc());
 }
 function calculer() {
   let donnee = parseFloat(document.getElementById('monnaie').value);
-  let total = panier.reduce((a,[_,p,q])=>a+p*q,0);
+  let total = ttc();
   if (isNaN(donnee)) { document.getElementById('rendu').textContent='Montant invalide'; return; }
   let r = donnee - total;
   document.getElementById('rendu').textContent = r < 0 ? '❌ Il manque ' + fmt(-r) : '✅ A rendre : ' + fmt(r);
