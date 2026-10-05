@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tsiky - Applications</title>
+<style>
+  body { font-family:'Segoe UI',Arial; margin:0; background:#1e2a38; color:#ecf0f1; }
+  nav { background:#2c3e50; padding:15px; display:flex; gap:20px; justify-content:center; }
+  nav a { color:#f1c40f; text-decoration:none; font-weight:bold; font-size:18px; }
+  header { text-align:center; padding:40px 20px; }
+  header h1 { color:#f1c40f; font-size:36px; }
+  section { padding:20px; max-width:800px; margin:auto; }
+  .carte { background:#2c3e50; border-radius:12px; padding:20px; margin:15px 0; }
+  .carte h3 { color:#2ecc71; margin-top:0; }
+  .btn { background:#27ae60; color:white; padding:12px 25px; border:none; border-radius:10px; font-size:16px; font-weight:bold; cursor:pointer; text-decoration:none; display:inline-block; }
+</style>
+</head>
+<body>
+<nav>
+  <a href="#accueil">🏠 Accueil</a>
+  <a href="#apps">📱 Applications</a>
+  <a href="#contact">📧 Contact</a>
+</nav>
+
+<header id="accueil">
+  <h1>🛒 Tsiky</h1>
+  <p>Bienvenue sur le site de Tsiky ! Découvrez nos applications gratuites.</p>
+</header>
+
+<section id="apps">
+  <h2>📱 Applications disponibles</h2>
+
+  <div class="carte">
+    <h3>🛒 Caisse Magasin</h3>
+    <p>Logiciel de caisse : panier, calcul du rendu de monnaie, gestion des produits. Monnaie en Ariary (Ar).</p>
+    <a class="btn" href="caisse/">▶️ Ouvrir l'application</a>
+  </div>
+
+  <div class="carte">
+    <h3>🔮 Bientôt d'autres applications...</h3>
+    <p>Restez connecté pour découvrir les prochaines applis !</p>
+  </div>
+</section>
+
+<section id="contact" class="carte">
+  <h2>📧 Contact</h2>
+  <p>Pour toute question : contactez Tsiky via ce site.</p>
+</section>
+</body>
+</html>
