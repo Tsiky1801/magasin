@@ -3,99 +3,49 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Caisse Magasin</title>
-<link rel="manifest" href="manifest.json">
+<title>Tsiky - Applications</title>
 <style>
-  body { font-family: 'Segoe UI', Arial; background:#1e2a38; color:#ecf0f1; margin:0; padding:10px; }
-  h1 { text-align:center; color:#f1c40f; }
-  .card { background:#2c3e50; border-radius:12px; padding:12px; margin:10px 0; }
-  select, input { width:100%; padding:10px; font-size:16px; border-radius:8px; border:none; margin:5px 0; box-sizing:border-box; }
-  button { width:100%; padding:14px; font-size:18px; font-weight:bold; border:none; border-radius:10px; color:white; margin:5px 0; cursor:pointer; }
-  .vert{background:#27ae60;} .rouge{background:#e74c3c;} .bleu{background:#2980b9;} .orange{background:#f39c12;}
-  #liste { white-space:pre-line; font-family:Consolas; }
-  #total { color:#f1c40f; font-size:24px; font-weight:bold; text-align:center; }
-  #rendu { font-size:22px; font-weight:bold; text-align:center; }
-  #prix { color:#2ecc71; font-size:20px; font-weight:bold; text-align:center; }
+  body { font-family:'Segoe UI',Arial; margin:0; background:#1e2a38; color:#ecf0f1; }
+  nav { background:#2c3e50; padding:15px; display:flex; gap:20px; justify-content:center; }
+  nav a { color:#f1c40f; text-decoration:none; font-weight:bold; font-size:18px; }
+  header { text-align:center; padding:40px 20px; }
+  header h1 { color:#f1c40f; font-size:36px; }
+  section { padding:20px; max-width:800px; margin:auto; }
+  .carte { background:#2c3e50; border-radius:12px; padding:20px; margin:15px 0; }
+  .carte h3 { color:#2ecc71; margin-top:0; }
+  .btn { background:#27ae60; color:white; padding:12px 25px; border:none; border-radius:10px; font-size:16px; font-weight:bold; cursor:pointer; text-decoration:none; display:inline-block; }
 </style>
 </head>
 <body>
-<h1>🛒 CAISSE MAGASIN</h1>
+<nav>
+  <a href="#accueil">🏠 Accueil</a>
+  <a href="#apps">📱 Applications</a>
+  <a href="#contact">📧 Contact</a>
+</nav>
 
-<div class="card">
-  <select id="produit" onchange="afficherPrix()"></select>
-  <div id="prix">Prix : --</div>
-  <input id="qte" type="number" min="1" value="1" placeholder="Quantite">
-  <button class="vert" onclick="ajouter()">➕ Ajouter au panier</button>
-</div>
+<header id="accueil">
+  <h1>🛒 Tsiky</h1>
+  <p>Bienvenue sur le site de Tsiky ! Découvrez nos applications gratuites.</p>
+</header>
 
-<div class="card">
-  <h3>🧾 Panier</h3>
-  <div id="liste">Panier vide</div>
-  <div id="total">TOTAL : 0 Ar</div>
-  <button class="rouge" onclick="vider()">🗑 Vider le panier</button>
-</div>
+<section id="apps">
+  <h2>📱 Applications disponibles</h2>
 
-<div class="card">
-  <input id="monnaie" type="number" placeholder="Monnaie donnee (Ar)">
-  <button class="bleu" onclick="calculer()">💵 Calculer le rendu</button>
-  <div id="rendu">Monnaie a rendre : --</div>
-</div>
+  <div class="carte">
+    <h3>🛒 Caisse Magasin</h3>
+    <p>Logiciel de caisse : panier, calcul du rendu de monnaie, gestion des produits. Monnaie en Ariary (Ar).</p>
+    <a class="btn" href="magasin/">▶️ Ouvrir l'application</a>
+  </div>
 
-<div class="card">
-  <h3>📦 Nouveau produit</h3>
-  <input id="newNom" placeholder="Nom du produit">
-  <input id="newPrix" type="number" placeholder="Prix (Ar)">
-  <button class="orange" onclick="ajouterProduit()">✅ Ajouter le produit</button>
-</div>
+  <div class="carte">
+    <h3>🔮 Bientôt d'autres applications...</h3>
+    <p>Restez connecté pour découvrir les prochaines applis !</p>
+  </div>
+</section>
 
-<script>
-let produits = JSON.parse(localStorage.getItem('produits')) || {
-  "Eau minerale 0.5L":500,"Pain":1200,"Lait 1L":3000,"Coca Cola 1.5L":4500,
-  "Croissant":800,"Cafe":2500,"Chocolat":3500,"Yaourt":700
-};
-let panier = [];
-const fmt = m => m.toLocaleString('fr-FR').replace(/ /g,' ') + ' Ar';
-
-function rafraichirListe() {
-  let s = document.getElementById('produit');
-  s.innerHTML = '<option value="">Choisir un produit</option>';
-  Object.keys(produits).sort().forEach(p => s.innerHTML += `<option>${p}</option>`);
-}
-function afficherPrix() {
-  let p = document.getElementById('produit').value;
-  document.getElementById('prix').textContent = produits[p] ? 'Prix : ' + fmt(produits[p]) : 'Prix : --';
-}
-function ajouter() {
-  let p = document.getElementById('produit').value;
-  let q = parseInt(document.getElementById('qte').value) || 1;
-  if (produits[p]) panier.push([p, produits[p], q]);
-  rafraichirPanier();
-}
-function vider() { panier = []; rafraichirPanier(); document.getElementById('rendu').textContent='Monnaie a rendre : --'; }
-function rafraichirPanier() {
-  let lignes = panier.map(([n,p,q]) => `${n}  ${q} x ${fmt(p)} = ${fmt(p*q)}`);
-  document.getElementById('liste').textContent = lignes.join('\n') || 'Panier vide';
-  document.getElementById('total').textContent = 'TOTAL : ' + fmt(panier.reduce((a,[_,p,q])=>a+p*q,0));
-}
-function calculer() {
-  let donnee = parseFloat(document.getElementById('monnaie').value);
-  let total = panier.reduce((a,[_,p,q])=>a+p*q,0);
-  if (isNaN(donnee)) { document.getElementById('rendu').textContent='Montant invalide'; return; }
-  let r = donnee - total;
-  document.getElementById('rendu').textContent = r < 0 ? '❌ Il manque ' + fmt(-r) : '✅ A rendre : ' + fmt(r);
-}
-function ajouterProduit() {
-  let n = document.getElementById('newNom').value.trim();
-  let p = parseFloat(document.getElementById('newPrix').value);
-  if (n && !isNaN(p) && p >= 0) {
-    produits[n] = p;
-    localStorage.setItem('produits', JSON.stringify(produits));
-    rafraichirListe();
-    document.getElementById('newNom').value=''; document.getElementById('newPrix').value='';
-    alert("'"+n+"' ajouté !");
-  }
-}
-rafraichirListe(); rafraichirPanier();
-</script>
+<section id="contact" class="carte">
+  <h2>📧 Contact</h2>
+  <p>Pour toute question : contactez Tsiky via ce site.</p>
+</section>
 </body>
 </html>
