@@ -23,7 +23,7 @@
 </head>
 <body>
 
-<div id="notif">🔔 Nouvelle version disponible ! Fermez et rouvrez l'application pour profiter des nouveautés.</div>
+<div id="notif">🔔 Nouvelle version ! Historique, article libre et imprimante ajoutés.</div>
 
 <div id="accueilApp">
   <h1>🛒 BIENVENUE DANS NOTRE APPLICATION</h1>
@@ -39,6 +39,14 @@
 
 <div id="caisse" class="cache">
 <h1>🛒 CAISSE MAGASIN</h1>
+
+<div class="card">
+  <h3>🛍 Article libre (sans recherche)</h3>
+  <input id="artNom" placeholder="Nom de l'article">
+  <input id="artPrix" type="number" placeholder="Prix (Ar)">
+  <input id="artQte" type="number" min="1" value="1" placeholder="Quantite">
+  <button class="bleu" onclick="ajouterLibre()">➕ Ajouter</button>
+</div>
 
 <div class="card">
   <select id="produit" onchange="afficherPrix()"></select>
@@ -58,6 +66,12 @@
   <input id="monnaie" type="number" placeholder="Monnaie donnee (Ar)">
   <button class="bleu" onclick="calculer()">💵 Calculer le rendu</button>
   <div id="rendu">Monnaie a rendre : --</div>
+  <button class="orange" onclick="imprimerTicket()">🖨 Imprimer le ticket</button>
+</div>
+
+<div class="card">
+  <h3>📜 Historique des achats</h3>
+  <div id="historique" style="white-space:pre-line">Aucun achat enregistre.</div>
 </div>
 
 <div class="card">
@@ -76,16 +90,15 @@ let produits = JSON.parse(localStorage.getItem('produits')) || {
 let panier = [];
 const fmt = m => m.toLocaleString('fr-FR').replace(/ /g,' ') + ' Ar';
 const ht = () => panier.reduce((a,[_,p,q])=>a+p*q,0);
-const tva = () => Math.round(ht() * 0.20);
-const ttc = () => ht() + tva();
+const ttc = () => ht();
 function ouvrirCaisse() {
   document.getElementById('accueilApp').style.display='none';
   document.getElementById('caisse').classList.remove('cache');
 }
 // Notification de mise a jour
-if (localStorage.getItem('version_app') !== '2.0') {
+if (localStorage.getItem('version_app') !== '2.1') {
   document.getElementById('notif').style.display='block';
-  localStorage.setItem('version_app', '2.0');
+  localStorage.setItem('version_app', '2.1');
 }
 
 function rafraichirListe() {
@@ -108,7 +121,7 @@ function rafraichirPanier() {
   let lignes = panier.map(([n,p,q]) => `${n}  ${q} x ${fmt(p)} = ${fmt(p*q)}`);
   document.getElementById('liste').textContent = lignes.join('\n') || 'Panier vide';
   document.getElementById('total').textContent =
-    'Sous-total : ' + fmt(ht()) + '\nTVA 20% : ' + fmt(tva()) + '\nTOTAL TTC : ' + fmt(ttc());
+    'TOTAL : ' + fmt(ttc());
 }
 function calculer() {
   let donnee = parseFloat(document.getElementById('monnaie').value);
@@ -116,6 +129,55 @@ function calculer() {
   if (isNaN(donnee)) { document.getElementById('rendu').textContent='Montant invalide'; return; }
   let r = donnee - total;
   document.getElementById('rendu').textContent = r < 0 ? '❌ Il manque ' + fmt(-r) : '✅ A rendre : ' + fmt(r);
+  if (r >= 0 && panier.length) enregistrerVente(donnee, r);
+}
+
+let historique = JSON.parse(localStorage.getItem('historique') || '[]');
+function enregistrerVente(donnee, rendu) {
+  historique.push({ date: new Date().toLocaleString(), articles: panier.map(p=>p[0]).join(', '), total: ttc() });
+  localStorage.setItem('historique', JSON.stringify(historique));
+  afficherHistorique();
+}
+function afficherHistorique() {
+  document.getElementById('historique').textContent = historique.length
+    ? historique.map(h => `🧾 ${h.date}\n   ${h.articles}\n   Total : ${fmt(h.total)}`).join('\n\n')
+    : 'Aucun achat enregistre.';
+}
+function ajouterLibre() {
+  let n = document.getElementById('artNom').value.trim();
+  let p = parseFloat(document.getElementById('artPrix').value);
+  let q = parseInt(document.getElementById('artQte').value) || 1;
+  if (n && !isNaN(p) && p >= 0) {
+    panier.push([n, p, q]);
+    rafraichirPanier();
+    document.getElementById('artNom').value='';
+    document.getElementById('artPrix').value='';
+    document.getElementById('artQte').value='1';
+  } else alert('Remplissez le nom et le prix');
+}
+function imprimerTicket() {
+  if (!panier.length) { alert('Panier vide'); return; }
+  let donnee = parseFloat(document.getElementById('monnaie').value) || 0;
+  let lignes = panier.map(([n,p,q]) =>
+    n.padEnd(24,' ')+String(q).padStart(2,' ')+' x '+fmt(p).padStart(9,' ')+'\n'+''.padEnd(24,' ')+'= '+fmt(p*q));
+  let ticket =
+'================================\n'+
+'           TSIKY SHOP\n'+
+'        Grand Magasin\n'+
+'================================\n'+
+'Date: '+new Date().toLocaleString()+'\n'+
+'--------------------------------\n'+
+lignes.join('\n')+'\n'+
+'--------------------------------\n'+
+'TOTAL      : '+fmt(ttc())+'\n'+
+'DONNEE     : '+fmt(donnee)+'\n'+
+'RENDU      : '+fmt(Math.max(0,donnee-ttc()))+'\n'+
+'================================\n'+
+'   MERCI DE VOTRE VISITE !\n'+
+'        A BIENTOT...\n'+
+'================================\n';
+  let w = window.open('', '_blank');
+  w.document.write('<pre style="font-family:monospace;font-size:14px">'+ticket+'</pre><script>print();onafterprint=close()<\/script>');
 }
 function ajouterProduit() {
   let n = document.getElementById('newNom').value.trim();
@@ -128,7 +190,7 @@ function ajouterProduit() {
     alert("'"+n+"' ajouté !");
   }
 }
-rafraichirListe(); rafraichirPanier();
+rafraichirListe(); rafraichirPanier(); afficherHistorique();
 </script>
 </body>
 </html>
