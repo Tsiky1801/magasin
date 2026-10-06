@@ -3,197 +3,71 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Caisse Magasin</title>
-<link rel="manifest" href="manifest.json">
+<title>Tsiky - Applications</title>
 <style>
-  body { font-family: 'Segoe UI', Arial; background:#1e2a38; color:#ecf0f1; margin:0; padding:10px; }
-  h1 { text-align:center; color:#f1c40f; }
-  .card { background:#2c3e50; border-radius:12px; padding:12px; margin:10px 0; }
-  select, input { width:100%; padding:10px; font-size:16px; border-radius:8px; border:none; margin:5px 0; box-sizing:border-box; }
-  button { width:100%; padding:14px; font-size:18px; font-weight:bold; border:none; border-radius:10px; color:white; margin:5px 0; cursor:pointer; }
-  .vert{background:#27ae60;} .rouge{background:#e74c3c;} .bleu{background:#2980b9;} .orange{background:#f39c12;}
-  #liste { white-space:pre-line; font-family:Consolas; }
-  #total { color:#f1c40f; font-size:20px; font-weight:bold; text-align:center; white-space:pre-line; }
-  #rendu { font-size:22px; font-weight:bold; text-align:center; }
-  #prix { color:#2ecc71; font-size:20px; font-weight:bold; text-align:center; }
-  #notif { background:#e67e22; color:white; padding:10px; border-radius:8px; text-align:center; font-weight:bold; display:none; margin:10px 0; }
-  #accueilApp { text-align:center; padding:30px 10px; }
-  .cache { display:none; }
+  * { box-sizing:border-box; }
+  body { font-family:'Segoe UI',Arial,sans-serif; margin:0; background:linear-gradient(135deg,#16213e 0%,#1e2a38 100%); color:#ecf0f1; min-height:100vh; }
+  nav { background:rgba(44,62,80,.95); backdrop-filter:blur(6px); padding:16px; display:flex; gap:25px; justify-content:center; box-shadow:0 4px 12px rgba(0,0,0,.4); position:sticky; top:0; z-index:10; }
+  nav a { color:#f1c40f; text-decoration:none; font-weight:bold; font-size:17px; transition:.3s; }
+  nav a:hover { color:#fff; transform:scale(1.08); }
+  header { text-align:center; padding:60px 20px; }
+  header h1 { color:#f1c40f; font-size:52px; margin:0; text-shadow:0 0 20px rgba(241,196,15,.5); }
+  header p { font-size:19px; color:#bdc3c7; margin-top:12px; }
+  section { padding:20px; max-width:900px; margin:auto; }
+  h2 { color:#f1c40f; border-bottom:2px solid #f1c40f; padding-bottom:8px; }
+  .carte { background:linear-gradient(145deg,#2c3e50,#34495e); border-radius:18px; padding:25px; margin:18px 0; box-shadow:0 10px 25px rgba(0,0,0,.35); transition:.3s; }
+  .carte:hover { transform:translateY(-6px); box-shadow:0 18px 35px rgba(0,0,0,.5); }
+  .carte h3 { color:#2ecc71; margin-top:0; font-size:24px; }
+  .carte p { color:#d5dbdb; line-height:1.6; }
+  .btn { background:linear-gradient(90deg,#27ae60,#2ecc71); color:white; padding:14px 30px; border:none; border-radius:30px; font-size:17px; font-weight:bold; cursor:pointer; text-decoration:none; display:inline-block; box-shadow:0 6px 15px rgba(39,174,96,.4); transition:.3s; }
+  .btn:hover { transform:scale(1.06); box-shadow:0 10px 20px rgba(39,174,96,.6); }
+  .orange { background:linear-gradient(90deg,#e67e22,#f39c12); box-shadow:0 6px 15px rgba(243,156,18,.4); }
+  footer { text-align:center; padding:25px; color:#7f8c8d; background:#16213e; margin-top:40px; }
 </style>
 </head>
 <body>
+<nav>
+  <a href="#accueil">🏠 Accueil</a>
+  <a href="#apps">📱 Applications</a>
+  <a href="#contact">📧 Contact</a>
+</nav>
 
-<div id="notif">🔔 Nouvelle version ! Historique, article libre et imprimante ajoutés.</div>
+<header id="accueil">
+  <h1>🛒 Tsiky</h1>
+  <p>Bienvenue sur le site de Tsiky ! Découvrez nos applications gratuites et nos mini-jeux.</p>
+</header>
 
-<div id="accueilApp">
-  <h1>🛒 BIENVENUE DANS NOTRE APPLICATION</h1>
-  <div class="card">
-    <p style="font-size:20px;color:#f1c40f;font-weight:bold;">✨ Tsiky Caisse ✨</p>
-    <p>📦 Gérez simplement votre magasin : produits, panier et rendu de monnaie en Ariary.</p>
-    <p>👨‍💻 Développée par : <b>Tsiky</b></p>
-    <p>📧 Contact : <b>tsikynambs@gmail.com</b></p>
-    <p style="color:#2ecc71;font-weight:bold;">🔔 v2.0 : TVA ajoutée !</p>
+<section id="apps">
+  <h2>📱 Applications disponibles</h2>
+
+  <div class="carte">
+    <h3>🛒 Caisse Magasin</h3>
+    <p>Logiciel de caisse : panier, calcul du rendu de monnaie, gestion des produits. Monnaie en Ariary (Ar). Fonctionne hors ligne !</p>
+    <a class="btn" href="caisse/">▶️ Ouvrir l'application</a>
   </div>
-  <button class="vert" style="font-size:22px;" onclick="ouvrirCaisse()">🛒 ENTRER DANS LA CAISSE</button>
-</div>
 
-<div id="caisse" class="cache">
-<h1>🛒 CAISSE MAGASIN</h1>
+  <div class="carte">
+    <h3>🧮 Calcul Mental (Mini-jeu)</h3>
+    <p>Testez vos calculs avec 4 niveaux : débutant, facile, intermédiaire et avancé. Fonctionne hors ligne !</p>
+    <a class="btn orange" href="jeux/">▶️ Jouer</a>
+  </div>
 
-<div class="card">
-  <h3>🛍 Article libre (sans recherche)</h3>
-  <input id="artNom" placeholder="Nom de l'article">
-  <input id="artPrix" type="number" placeholder="Prix (Ar)">
-  <input id="artQte" type="number" min="1" value="1" placeholder="Quantite">
-  <button class="bleu" onclick="ajouterLibre()">➕ Ajouter</button>
-</div>
+  <div class="carte">
+    <h3>🔮 Bientôt d'autres applications...</h3>
+    <p>Restez connecté pour découvrir les prochaines applis de Tsiky !</p>
+  </div>
+</section>
 
-<div class="card">
-  <select id="produit" onchange="afficherPrix()"></select>
-  <div id="prix">Prix : --</div>
-  <input id="qte" type="number" min="1" value="1" placeholder="Quantite">
-  <button class="vert" onclick="ajouter()">➕ Ajouter au panier</button>
-</div>
+<section id="contact">
+  <div class="carte">
+    <h2>📧 Contact</h2>
+    <p>📧 Email : <b>tsikynambs@gmail.com</b></p>
+    <p>📘 Facebook : <b>NAMBININTSOA Tsiky Fanantenana</b></p>
+    <p>💻 GitHub : <b>Tsiky1801</b></p>
+    <p>📞 Tél : <b>0389791195 / 0385213142</b></p>
+  </div>
+</section>
 
-<div class="card">
-  <h3>🧾 Panier</h3>
-  <div id="liste">Panier vide</div>
-  <div id="total">TOTAL : 0 Ar</div>
-  <button class="rouge" onclick="vider()">🗑 Vider le panier</button>
-</div>
-
-<div class="card">
-  <input id="monnaie" type="number" placeholder="Monnaie donnee (Ar)">
-  <button class="bleu" onclick="calculer()">💵 Calculer le rendu</button>
-  <div id="rendu">Monnaie a rendre : --</div>
-  <button class="orange" onclick="imprimerTicket()">🖨 Imprimer le ticket</button>
-</div>
-
-<div class="card">
-  <h3>📜 Historique des achats</h3>
-  <div id="historique" style="white-space:pre-line">Aucun achat enregistre.</div>
-</div>
-
-<div class="card">
-  <h3>📦 Nouveau produit</h3>
-  <input id="newNom" placeholder="Nom du produit">
-  <input id="newPrix" type="number" placeholder="Prix (Ar)">
-  <button class="orange" onclick="ajouterProduit()">✅ Ajouter le produit</button>
-</div>
-</div>
-
-<script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js');
-}
-let produits = JSON.parse(localStorage.getItem('produits')) || {
-  "Eau minerale 0.5L":500,"Pain":1200,"Lait 1L":3000,"Coca Cola 1.5L":4500,
-  "Croissant":800,"Cafe":2500,"Chocolat":3500,"Yaourt":700
-};
-let panier = [];
-const fmt = m => m.toLocaleString('fr-FR').replace(/ /g,' ') + ' Ar';
-const ht = () => panier.reduce((a,[_,p,q])=>a+p*q,0);
-const ttc = () => ht();
-function ouvrirCaisse() {
-  document.getElementById('accueilApp').style.display='none';
-  document.getElementById('caisse').classList.remove('cache');
-}
-// Notification de mise a jour
-if (localStorage.getItem('version_app') !== '2.1') {
-  document.getElementById('notif').style.display='block';
-  localStorage.setItem('version_app', '2.1');
-}
-
-function rafraichirListe() {
-  let s = document.getElementById('produit');
-  s.innerHTML = '<option value="">Choisir un produit</option>';
-  Object.keys(produits).sort().forEach(p => s.innerHTML += `<option>${p}</option>`);
-}
-function afficherPrix() {
-  let p = document.getElementById('produit').value;
-  document.getElementById('prix').textContent = produits[p] ? 'Prix : ' + fmt(produits[p]) : 'Prix : --';
-}
-function ajouter() {
-  let p = document.getElementById('produit').value;
-  let q = parseInt(document.getElementById('qte').value) || 1;
-  if (produits[p]) panier.push([p, produits[p], q]);
-  rafraichirPanier();
-}
-function vider() { panier = []; rafraichirPanier(); document.getElementById('rendu').textContent='Monnaie a rendre : --'; }
-function rafraichirPanier() {
-  let lignes = panier.map(([n,p,q]) => `${n}  ${q} x ${fmt(p)} = ${fmt(p*q)}`);
-  document.getElementById('liste').textContent = lignes.join('\n') || 'Panier vide';
-  document.getElementById('total').textContent =
-    'TOTAL : ' + fmt(ttc());
-}
-function calculer() {
-  let donnee = parseFloat(document.getElementById('monnaie').value);
-  let total = ttc();
-  if (isNaN(donnee)) { document.getElementById('rendu').textContent='Montant invalide'; return; }
-  let r = donnee - total;
-  document.getElementById('rendu').textContent = r < 0 ? '❌ Il manque ' + fmt(-r) : '✅ A rendre : ' + fmt(r);
-  if (r >= 0 && panier.length) enregistrerVente(donnee, r);
-}
-
-let historique = JSON.parse(localStorage.getItem('historique') || '[]');
-function enregistrerVente(donnee, rendu) {
-  historique.push({ date: new Date().toLocaleString(), articles: panier.map(p=>p[0]).join(', '), total: ttc() });
-  localStorage.setItem('historique', JSON.stringify(historique));
-  afficherHistorique();
-}
-function afficherHistorique() {
-  document.getElementById('historique').textContent = historique.length
-    ? historique.map(h => `🧾 ${h.date}\n   ${h.articles}\n   Total : ${fmt(h.total)}`).join('\n\n')
-    : 'Aucun achat enregistre.';
-}
-function ajouterLibre() {
-  let n = document.getElementById('artNom').value.trim();
-  let p = parseFloat(document.getElementById('artPrix').value);
-  let q = parseInt(document.getElementById('artQte').value) || 1;
-  if (n && !isNaN(p) && p >= 0) {
-    panier.push([n, p, q]);
-    rafraichirPanier();
-    document.getElementById('artNom').value='';
-    document.getElementById('artPrix').value='';
-    document.getElementById('artQte').value='1';
-  } else alert('Remplissez le nom et le prix');
-}
-function imprimerTicket() {
-  if (!panier.length) { alert('Panier vide'); return; }
-  let donnee = parseFloat(document.getElementById('monnaie').value) || 0;
-  let lignes = panier.map(([n,p,q]) =>
-    n.padEnd(24,' ')+String(q).padStart(2,' ')+' x '+fmt(p).padStart(9,' ')+'\n'+''.padEnd(24,' ')+'= '+fmt(p*q));
-  let ticket =
-'================================\n'+
-'           TSIKY SHOP\n'+
-'        Grand Magasin\n'+
-'================================\n'+
-'Date: '+new Date().toLocaleString()+'\n'+
-'--------------------------------\n'+
-lignes.join('\n')+'\n'+
-'--------------------------------\n'+
-'TOTAL      : '+fmt(ttc())+'\n'+
-'DONNEE     : '+fmt(donnee)+'\n'+
-'RENDU      : '+fmt(Math.max(0,donnee-ttc()))+'\n'+
-'================================\n'+
-'   MERCI DE VOTRE VISITE !\n'+
-'        A BIENTOT...\n'+
-'================================\n';
-  let w = window.open('', '_blank');
-  w.document.write('<pre style="font-family:monospace;font-size:14px">'+ticket+'</pre><script>print();onafterprint=close()<\/script>');
-}
-function ajouterProduit() {
-  let n = document.getElementById('newNom').value.trim();
-  let p = parseFloat(document.getElementById('newPrix').value);
-  if (n && !isNaN(p) && p >= 0) {
-    produits[n] = p;
-    localStorage.setItem('produits', JSON.stringify(produits));
-    rafraichirListe();
-    document.getElementById('newNom').value=''; document.getElementById('newPrix').value='';
-    alert("'"+n+"' ajouté !");
-  }
-}
-rafraichirListe(); rafraichirPanier(); afficherHistorique();
-</script>
+<footer>© 2026 Tsiky — Tous droits réservés 🛒</footer>
 </body>
 </html>
