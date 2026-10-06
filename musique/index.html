@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Studio Musique - Tsiky</title>
+<link rel="manifest" href="manifest.json">
+<style>
+  body { font-family:'Segoe UI',Arial; background:linear-gradient(135deg,#1a1a2e,#16213e); color:#ecf0f1; margin:0; padding:10px; text-align:center; }
+  h1 { color:#f1c40f; }
+  .piste { display:flex; align-items:center; margin:5px 0; gap:5px; }
+  .piste span { width:80px; font-weight:bold; }
+  .cases { display:flex; flex-wrap:wrap; justify-content:center; }
+  .case { width:40px; height:40px; margin:2px; background:#2c3e50; border-radius:6px; cursor:pointer; transition:background .2s; }
+  .case.active { background:#f1c40f; }
+  button { padding:12px 25px; font-size:16px; font-weight:bold; border:none; border-radius:10px; color:white; background:#27ae60; cursor:pointer; margin:5px; }
+  .rouge { background:#e74c3c; }
+  input[type=range] { width:200px; }
+</style>
+</head>
+<body>
+<h1>🎵 Studio Musique Tsiky</h1>
+<p>Cliquez sur les cases pour créer votre beat, puis appuyez sur Play !</p>
+
+<div id="pistes"></div>
+
+<div style="margin:15px 0;">
+  <label>Vitesse : <input type="range" id="vitesse" min="80" max="200" value="120"></label>
+</div>
+
+<button onclick="jouer()">▶️ Play</button>
+<button class="rouge" onclick="stop()">⏹ Stop</button>
+<button onclick="clear()">🧹 Effacer</button>
+<button onclick="save()">💾 Sauvegarder</button>
+
+<script>
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
+let instruments = ['🥁 Caisse','🥁 Pierre','🎩 Moins','🎹 Note 1','🎹 Note 2','🎹 Note 3','🔊 Test'];
+let coups = []; // bool per instrument per step (max 8 steps)
+let N = 8;
+for (let i=0;i<instruments.length;i++) coups[i]=[];
+function generer() {
+  let div = document.getElementById('pistes'); div.innerHTML='';
+  instruments.forEach((inst,i) => {
+    let p = document.createElement('div'); p.className='piste';
+    p.innerHTML = '<span>'+inst+'</span>';
+    let cases = document.createElement('div'); cases.className='cases';
+    for (let s=0;s<N;s++) {
+      let c = document.createElement('div'); c.className='case'+(coups[i][s]?' active':'');
+      c.onclick = () => { coups[i][s]=!coups[i][s]; c.classList.toggle('active'); };
+      cases.appendChild(c);
+    }
+    p.appendChild(cases); div.appendChild(p);
+  });
+}
+generer();
+
+let ctx, interval, step=0;
+function jouer() {
+  ctx = ctx || new (window.AudioContext||window.webkitAudioContext)();
+  stop();
+  interval = setInterval(() => {
+    coups.forEach((inst,i) => { if (inst[step]) jouerSon(i); });
+    step = (step+1) % N;
+  }, 60000/parseInt(document.getElementById('vitesse').value)/4*1000/60*2); // adjust
+}
+function jouerSon(i) {
+  if (!ctx) return;
+  let o = ctx.createOscillator(), g = ctx.createGain();
+  let freqs = [100,150,200,440,660,880,1200];
+  o.frequency.value = freqs[i%freqs.length];
+  g.gain.value = 0.3;
+  o.connect(g); g.connect(ctx.destination);
+  o.start(); o.stop(ctx.currentTime+0.15);
+}
+function stop() { if (interval) clearInterval(interval); step=0; }
+function clear() { for (let i=0;i<instruments.length;i++) for (let s=0;s<N;s++) coups[i][s]=false; generer(); }
+function save() { localStorage.setItem('beat', JSON.stringify(coups)); alert('Sauvegardé !'); }
+// Load saved
+let s = localStorage.getItem('beat'); if (s) { try { coups = JSON.parse(s); generer(); } catch(e){} }
+</script>
+</body>
+</html>
