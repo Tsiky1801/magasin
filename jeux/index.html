@@ -52,7 +52,7 @@
   <button class="av" onclick="retourMenu()">⬅ Retour au menu</button>
 </div>
 
-<div class="card" id="fin" style="display:none">
+<div class="card" id="ecranFin" style="display:none">
   <h2>🎉 Fin du jeu !</h2>
   <div id="scoreFinal" style="font-size:26px;color:#f1c40f;"></div>
   <div id="medaille" style="font-size:40px;"></div>
@@ -161,7 +161,7 @@ function valider() {
 function fin() {
   clearInterval(timer);
   document.getElementById('jeu').style.display='none';
-  document.getElementById('fin').style.display='block';
+  document.getElementById('ecranFin').style.display='block';
   document.getElementById('scoreFinal').textContent = 'Score final : ' + score + ' pts';
   document.getElementById('medaille').textContent = score >= 10 ? '🥇 Or' : score >= 7 ? '🥈 Argent' : score >= 4 ? '🥉 Bronze' : '💪 Continue !';
   if (score > record) { record = score; localStorage.setItem('record', record); document.getElementById('nouveauRecord').textContent = '🏆 NOUVEAU RECORD !'; }
@@ -169,7 +169,7 @@ function fin() {
 function retourMenu() {
   clearInterval(timer);
   document.getElementById('jeu').style.display='none';
-  document.getElementById('fin').style.display='none';
+  document.getElementById('ecranFin').style.display='none';
   document.getElementById('modes').style.display='none';
   document.getElementById('menu').style.display='block';
   parties = parseInt(localStorage.getItem('parties') || '0');
