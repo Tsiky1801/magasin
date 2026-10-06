@@ -1,7 +1,7 @@
 {
-  "name": "Calcul Mental - Tsiky",
-  "id": "/magasin/jeux/",
-  "short_name": "Jeu",
+  "name": "Caisse Magasin",
+  "id": "/magasin/caisse/",
+  "short_name": "Caisse",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#1e2a38",
