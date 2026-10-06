@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calcul Mental - Tsiky</title>
+<link rel="manifest" href="manifest.json">
+<style>
+  body { font-family:'Segoe UI',Arial; background:linear-gradient(135deg,#16213e,#1e2a38); color:#ecf0f1; margin:0; padding:10px; text-align:center; min-height:100vh; }
+  h1 { color:#f1c40f; }
+  .card { background:#2c3e50; border-radius:12px; padding:15px; margin:10px auto; max-width:520px; }
+  button { width:90%; padding:13px; font-size:17px; font-weight:bold; border:none; border-radius:10px; color:white; margin:6px 0; cursor:pointer; }
+  .deb{background:#27ae60;} .facile{background:#f39c12;} .inter{background:#e67e22;} .av{background:#e74c3c;} .bleu{background:#2980b9;} .violet{background:#8e44ad;}
+  input { padding:12px; font-size:20px; border-radius:8px; border:none; width:60%; text-align:center; margin:10px 0; }
+  #question { font-size:28px; color:#f1c40f; font-weight:bold; margin:15px 0; }
+  #score, #chrono { color:#2ecc71; font-size:20px; font-weight:bold; margin:5px; }
+  #vies { font-size:22px; }
+  #msg { font-size:18px; margin:10px 0; }
+  #stats { font-size:14px; color:#bdc3c7; }
+</style>
+</head>
+<body>
+<h1>🧮 Calcul Mental</h1>
+
+<div class="card" id="menu">
+  <h2>🎯 1. Choisissez un niveau :</h2>
+  <button class="deb" onclick="choisirNiveau(1)">🟢 DÉBUTANT</button>
+  <button class="facile" onclick="choisirNiveau(2)">🟡 FACILE</button>
+  <button class="inter" onclick="choisirNiveau(3)">🟠 INTERMÉDIAIRE</button>
+  <button class="av" onclick="choisirNiveau(4)">🔴 AVANCÉ</button>
+  <p id="record" style="color:#f1c40f;font-weight:bold;"></p>
+  <p id="stats"></p>
+  <button id="btnInstaller" class="bleu" onclick="installerApp()">📲 Télécharger / Installer le jeu</button>
+</div>
+
+<div class="card" id="modes" style="display:none">
+  <h2>🕹 2. Choisissez un mode :</h2>
+  <button class="bleu" onclick="demarrer('10q')">🏁 10 Questions</button>
+  <button class="violet" onclick="demarrer('30s')">⏱ 30 Secondes</button>
+  <button class="av" onclick="demarrer('survie')">❤️ Survie (3 vies)</button>
+  <button class="orange" onclick="demarrer('ariary')">💰 Mode Ariary</button>
+  <button class="deb" onclick="retourMenu()">⬅ Retour</button>
+</div>
+
+<div class="card" id="jeu" style="display:none">
+  <div id="score">Score : 0</div>
+  <div id="chrono">⏱ 0 s</div>
+  <div id="vies">❤️❤️❤️</div>
+  <div id="question"></div>
+  <input id="reponse" type="number" placeholder="Votre réponse">
+  <button class="bleu" onclick="valider()">✅ Valider</button>
+  <div id="msg"></div>
+  <button class="av" onclick="retourMenu()">⬅ Retour au menu</button>
+</div>
+
+<div class="card" id="ecranFin" style="display:none">
+  <h2>🎉 Fin du jeu !</h2>
+  <div id="scoreFinal" style="font-size:26px;color:#f1c40f;"></div>
+  <div id="medaille" style="font-size:40px;"></div>
+  <div id="nouveauRecord" style="color:#2ecc71;font-weight:bold;"></div>
+  <button class="deb" onclick="retourMenu()">🔄 Rejouer</button>
+</div>
+
+<script>
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
+let niveau = 1, mode = '10q', score = 0, nb = 0, vies = 3, reponseAttendue = 0, temps = 0, timer = null, tempsParQuestion = 0;
+
+const configs = {
+  1: { min:1, max:10, ops:['+','-'] },
+  2: { min:1, max:20, ops:['+','-','×'] },
+  3: { min:10, max:50, ops:['+','-','×'] },
+  4: { min:50, max:200, ops:['+','-','×','÷'] }
+};
+
+// ---- INSTALLER L'APP (bouton telecharger) ----
+let promptInstalle = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  promptInstalle = e;
+  document.getElementById('btnInstaller').style.display = 'block';
+});
+function installerApp() {
+  if (promptInstalle) {
+    promptInstalle.prompt();
+    promptInstalle = null;
+  } else {
+    alert('📱 Pour installer le jeu :\n\nSur téléphone : ouvrez Chrome → bouton ⋮ en haut à droite → "Installer et créer un raccourci"\n\nSur PC : cliquez sur l\'icône ⊕ dans la barre d\'adresse.');
+  }
+}
+
+// Meilleur score
+let record = parseInt(localStorage.getItem('record') || '0');
+document.getElementById('record').textContent = '🏆 Record : ' + record + ' pts';
+// Statistiques
+let parties = parseInt(localStorage.getItem('parties') || '0');
+document.getElementById('stats').textContent = '🎮 Parties jouées : ' + parties;
+
+function choisirNiveau(n) {
+  niveau = n;
+  document.getElementById('menu').style.display='none';
+  document.getElementById('modes').style.display='block';
+}
+function demarrer(m) {
+  mode = m; score = 0; nb = 0; vies = 3; temps = (m==='30s') ? 30 : 0;
+  document.getElementById('modes').style.display='none';
+  document.getElementById('jeu').style.display='block';
+  document.getElementById('vies').textContent = '❤️❤️❤️';
+  parties++; localStorage.setItem('parties', parties);
+  if (timer) clearInterval(timer);
+  timer = setInterval(tick, 1000);
+  nouvelleQuestion();
+}
+function tick() {
+  if (mode === '30s') { temps--; if (temps <= 0) { fin(); return; } }
+  else { temps++; }
+  document.getElementById('chrono').textContent = (mode==='30s' ? '⏱ ' + temps + ' s restantes' : '⏱ ' + temps + ' s');
+}
+function nouvelleQuestion() {
+  if (mode === '10q' && nb >= 10) { fin(); return; }
+  let c = configs[niveau];
+  let op = c.ops[Math.floor(Math.random()*c.ops.length)];
+  let a, b;
+  if (mode === 'ariary') {
+    let prix = [500, 800, 1000, 1200, 1500, 2000, 2500, 3000];
+    a = prix[Math.floor(Math.random()*prix.length)];
+    b = Math.floor(Math.random()*9)+2;
+    op = '×';
+    document.getElementById('question').textContent = b + ' x ' + a + ' Ar = ?';
+    reponseAttendue = a * b;
+  } else {
+    a = Math.floor(Math.random()*(c.max-c.min+1))+c.min;
+    b = Math.floor(Math.random()*(c.max-c.min+1))+c.min;
+    if (op === '÷') { b = Math.floor(Math.random()*9)+2; a = b * (Math.floor(Math.random()*9)+2); }
+    if (op === '-' && a < b) [a,b] = [b,a];
+    reponseAttendue = op==='+' ? a+b : op==='-' ? a-b : op==='×' ? a*b : a/b;
+    document.getElementById('question').textContent = a + ' ' + op + ' ' + b + ' = ?';
+  }
+  document.getElementById('reponse').value = '';
+  document.getElementById('msg').textContent = '';
+  document.getElementById('score').textContent = 'Score : ' + score;
+  lireQuestion();
+}
+function lireQuestion() {
+  try {
+    let u = new SpeechSynthesisUtterance(document.getElementById('question').textContent.replace('= ?','égal ?'));
+    u.lang = 'fr-FR'; speechSynthesis.speak(u);
+  } catch(e) {}
+}
+function bip(ok) {
+  try {
+    let ctx = new (window.AudioContext||window.webkitAudioContext)();
+    let o = ctx.createOscillator(); let g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.value = ok ? 800 : 200; g.gain.value = 0.2;
+    o.start(); o.stop(ctx.currentTime + 0.2);
+  } catch(e) {}
+}
+function valider() {
+  let r = parseInt(document.getElementById('reponse').value);
+  if (isNaN(r)) return;
+  nb++;
+  if (r === reponseAttendue) {
+    score++;
+    bip(true);
+    document.getElementById('msg').textContent = score % 5 === 0 ? '🔥 COMBO x' + score + ' !' : '✅ Bravo !';
+    document.getElementById('msg').style.color = '#2ecc71';
+  } else {
+    bip(false);
+    vies--;
+    document.getElementById('vies').textContent = '❤️'.repeat(Math.max(vies,0)) + '🖤'.repeat(3-Math.max(vies,0));
+    document.getElementById('msg').textContent = '❌ Raté ! Réponse : ' + reponseAttendue;
+    document.getElementById('msg').style.color = '#e74c3c';
+  }
+  if (vies <= 0 && mode === 'survie') { fin(); return; }
+  setTimeout(nouvelleQuestion, 1000);
+  if (mode === '10q' && nb >= 10) fin();
+}
+function fin() {
+  clearInterval(timer);
+  document.getElementById('jeu').style.display='none';
+  document.getElementById('ecranFin').style.display='block';
+  document.getElementById('scoreFinal').textContent = 'Score final : ' + score + ' pts';
+  document.getElementById('medaille').textContent = score >= 10 ? '🥇 Or' : score >= 7 ? '🥈 Argent' : score >= 4 ? '🥉 Bronze' : '💪 Continue !';
+  if (score > record) { record = score; localStorage.setItem('record', record); document.getElementById('nouveauRecord').textContent = '🏆 NOUVEAU RECORD !'; }
+}
+function retourMenu() {
+  clearInterval(timer);
+  document.getElementById('jeu').style.display='none';
+  document.getElementById('ecranFin').style.display='none';
+  document.getElementById('modes').style.display='none';
+  document.getElementById('menu').style.display='block';
+  parties = parseInt(localStorage.getItem('parties') || '0');
+  document.getElementById('stats').textContent = '🎮 Parties jouées : ' + parties;
+  document.getElementById('record').textContent = '🏆 Record : ' + record + ' pts';
+}
+</script>
+</body>
+</html>
