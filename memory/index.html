@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memory - Tsiky</title>
+<link rel="manifest" href="manifest.json">
+<style>
+  body { font-family:'Segoe UI',Arial; background:linear-gradient(135deg,#16213e,#1e2a38); color:#ecf0f1; margin:0; padding:10px; text-align:center; min-height:100vh; }
+  h1 { color:#f1c40f; }
+  .grid { display:grid; grid-template-columns:repeat(4,70px); gap:10px; justify-content:center; margin:15px 0; }
+  .carte { width:70px; height:70px; background:#2c3e50; border-radius:10px; font-size:32px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 8px rgba(0,0,0,.4); }
+  button { padding:14px 30px; font-size:18px; font-weight:bold; border:none; border-radius:10px; color:white; background:#27ae60; cursor:pointer; margin:10px; }
+  #info { font-size:20px; color:#2ecc71; font-weight:bold; }
+</style>
+</head>
+<body>
+<h1>🧠 Jeu Memory</h1>
+<p id="info">Coups : 0 | Trouvés : 0 / 8</p>
+<div class="grid" id="grille"></div>
+<button onclick="nouvelle()">🔄 Recommencer</button>
+<script>
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
+let emojis = ['🍎','🍌','🍇','🍊','🍓','🥝','🍉','🍍','🍎','🍌','🍇','🍊','🍓','🥝','🍉','🍍'];
+let cartes = [], retournes = [], trouves = 0, coups = 0, verrou = false;
+function nouvelle() {
+  trouves = 0; coups = 0; retournes = []; verrou = false;
+  cartes = emojis.sort(() => Math.random() - 0.5);
+  let g = document.getElementById('grille'); g.innerHTML = '';
+  cartes.forEach((e, i) => {
+    let c = document.createElement('div'); c.className = 'carte'; c.textContent = '?';
+    c.onclick = () => retourner(i, c);
+    g.appendChild(c);
+  });
+  maj();
+}
+function retourner(i, c) {
+  if (verrou || retournes.includes(i) || c.dataset.ok) return;
+  c.textContent = cartes[i]; retournes.push(i);
+  if (retournes.length === 2) {
+    coups++; verrou = true;
+    let [a, b] = retournes;
+    if (cartes[a] === cartes[b]) {
+      document.querySelectorAll('.carte')[a].dataset.ok = 1;
+      document.querySelectorAll('.carte')[b].dataset.ok = 1;
+      trouves++; retournes = []; verrou = false;
+      if (trouves === 8) alert('🎉 Bravo ! ' + coups + ' coups');
+    } else {
+      setTimeout(() => {
+        document.querySelectorAll('.carte')[a].textContent = '?';
+        document.querySelectorAll('.carte')[b].textContent = '?';
+        retournes = []; verrou = false;
+      }, 800);
+    }
+    maj();
+  }
+}
+function maj() { document.getElementById('info').textContent = 'Coups : ' + coups + ' | Trouvés : ' + trouves + ' / 8'; }
+nouvelle();
+</script>
+</body>
+</html>
