@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calcul Mental - Tsiky</title>
+<link rel="manifest" href="manifest.json">
+<style>
+  body { font-family:'Segoe UI',Arial; background:#1e2a38; color:#ecf0f1; margin:0; padding:10px; text-align:center; }
+  h1 { color:#f1c40f; }
+  .card { background:#2c3e50; border-radius:12px; padding:15px; margin:10px auto; max-width:500px; }
+  button { width:90%; padding:14px; font-size:18px; font-weight:bold; border:none; border-radius:10px; color:white; margin:6px 0; cursor:pointer; }
+  .deb{background:#27ae60;} .facile{background:#f39c12;} .inter{background:#e67e22;} .av{background:#e74c3c;} .bleu{background:#2980b9;}
+  input { padding:12px; font-size:20px; border-radius:8px; border:none; width:60%; text-align:center; margin:10px 0; }
+  #question { font-size:28px; color:#f1c40f; font-weight:bold; margin:15px 0; }
+  #score { color:#2ecc71; font-size:20px; font-weight:bold; }
+  #msg { font-size:18px; margin:10px 0; }
+</style>
+</head>
+<body>
+<h1>🧮 Jeu de Calcul Mental</h1>
+
+<div class="card" id="menu">
+  <h2>Choisissez votre niveau :</h2>
+  <button class="deb" onclick="demarrer(1)">🟢 DÉBUTANT</button>
+  <button class="facile" onclick="demarrer(2)">🟡 FACILE</button>
+  <button class="inter" onclick="demarrer(3)">🟠 INTERMÉDIAIRE</button>
+  <button class="av" onclick="demarrer(4)">🔴 AVANCÉ</button>
+</div>
+
+<div class="card" id="jeu" style="display:none">
+  <div id="score">Score : 0 / 10</div>
+  <div id="question"></div>
+  <input id="reponse" type="number" placeholder="Votre réponse">
+  <button class="bleu" onclick="valider()">✅ Valider</button>
+  <div id="msg"></div>
+  <button class="av" onclick="retour()">⬅ Retour au menu</button>
+</div>
+
+<div class="card" id="fin" style="display:none">
+  <h2>🎉 Fin du jeu !</h2>
+  <div id="scoreFinal" style="font-size:26px;color:#f1c40f;"></div>
+  <button class="deb" onclick="retour()">🔄 Rejouer</button>
+</div>
+
+<script>
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
+let niveau = 1, score = 0, nb = 0, reponseAttendue = 0;
+const configs = {
+  1: { min:1, max:10, ops:['+','-'] },
+  2: { min:1, max:20, ops:['+','-','×'] },
+  3: { min:10, max:50, ops:['+','-','×'] },
+  4: { min:50, max:200, ops:['+','-','×','÷'] }
+};
+function demarrer(n) {
+  niveau = n; score = 0; nb = 0;
+  document.getElementById('menu').style.display='none';
+  document.getElementById('jeu').style.display='block';
+  nouvelleQuestion();
+}
+function nouvelleQuestion() {
+  let c = configs[niveau];
+  let op = c.ops[Math.floor(Math.random()*c.ops.length)];
+  let a = Math.floor(Math.random()*(c.max-c.min+1))+c.min;
+  let b = Math.floor(Math.random()*(c.max-c.min+1))+c.min;
+  if (op === '÷') { b = Math.floor(Math.random()*9)+2; a = b * (Math.floor(Math.random()*9)+2); }
+  if (op === '-' && a < b) [a,b] = [b,a];
+  reponseAttendue = op==='+' ? a+b : op==='-' ? a-b : op==='×' ? a*b : a/b;
+  document.getElementById('question').textContent = a + ' ' + op + ' ' + b + ' = ?';
+  document.getElementById('reponse').value = '';
+  document.getElementById('msg').textContent = '';
+  document.getElementById('score').textContent = 'Score : ' + score + ' / 10';
+}
+function valider() {
+  let r = parseInt(document.getElementById('reponse').value);
+  nb++;
+  if (r === reponseAttendue) { score++; document.getElementById('msg').textContent='✅ Bravo !'; document.getElementById('msg').style.color='#2ecc71'; }
+  else { document.getElementById('msg').textContent='❌ Raté, la réponse était ' + reponseAttendue; document.getElementById('msg').style.color='#e74c3c'; }
+  if (nb >= 10) fin(); else setTimeout(nouvelleQuestion, 1200);
+}
+function fin() {
+  document.getElementById('jeu').style.display='none';
+  document.getElementById('fin').style.display='block';
+  document.getElementById('scoreFinal').textContent = 'Score final : ' + score + ' / 10';
+}
+function retour() {
+  document.getElementById('jeu').style.display='none';
+  document.getElementById('fin').style.display='none';
+  document.getElementById('menu').style.display='block';
+}
+</script>
+</body>
+</html>
