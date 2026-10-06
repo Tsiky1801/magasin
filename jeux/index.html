@@ -30,6 +30,7 @@
   <button class="av" onclick="choisirNiveau(4)">🔴 AVANCÉ</button>
   <p id="record" style="color:#f1c40f;font-weight:bold;"></p>
   <p id="stats"></p>
+  <button id="btnInstaller" class="bleu" onclick="installerApp()">📲 Télécharger / Installer le jeu</button>
 </div>
 
 <div class="card" id="modes" style="display:none">
@@ -70,6 +71,22 @@ const configs = {
   3: { min:10, max:50, ops:['+','-','×'] },
   4: { min:50, max:200, ops:['+','-','×','÷'] }
 };
+
+// ---- INSTALLER L'APP (bouton telecharger) ----
+let promptInstalle = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  promptInstalle = e;
+  document.getElementById('btnInstaller').style.display = 'block';
+});
+function installerApp() {
+  if (promptInstalle) {
+    promptInstalle.prompt();
+    promptInstalle = null;
+  } else {
+    alert('📱 Pour installer le jeu :\n\nSur téléphone : ouvrez Chrome → bouton ⋮ en haut à droite → "Installer et créer un raccourci"\n\nSur PC : cliquez sur l\'icône ⊕ dans la barre d\'adresse.');
+  }
+}
 
 // Meilleur score
 let record = parseInt(localStorage.getItem('record') || '0');
